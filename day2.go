@@ -40,11 +40,13 @@ func (p *Present) slackPaper() int {
 	side := p.Length * p.Height
 	front := p.Width * p.Height
 
-	if top < front && top < side {
+	switch {
+	case top <= front && top <= side:
+		// Top is smallest area
 		return top
-	} else if front < top && front < side {
+	case front <= top && front <= side:
 		return front
-	} else {
+	default:
 		return side
 	}
 }
@@ -84,8 +86,6 @@ func parsePresents(path string) (*[]Present, error) {
 		} else {
 			present.Height = i
 		}
-
-		fmt.Printf("DEBUG: Present: %v, Area: %d, Slack: %d, Total: %d\n", present, present.surfaceArea(), present.slackPaper(), present.totalPaper())
 		presents = append(presents, present)
 	}
 	if err := scanner.Err(); err != nil {

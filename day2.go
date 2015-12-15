@@ -20,6 +20,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -28,36 +29,60 @@ type Present struct {
 	Length, Width, Height int
 }
 
+func (p *Present) minSide() []int {
+	sides := []int{p.Length, p.Width, p.Height}
+	sort.Ints(sides)
+	return sides[0:2]
+}
+
 func (p *Present) surfaceArea() int {
 	// Surface area of a rectangular cuboid is the sum of the area of its sides.
 	// 2*l*w + 2*w*h + 2*h*l
-	return (2 * p.Length * p.Width) + (2 * p.Width * p.Height) + (2 * p.Height * p.Length)
+	return (2 * p.Length * p.Width) +
+		(2 * p.Width * p.Height) +
+		(2 * p.Height * p.Length)
 }
 
 func (p *Present) slackPaper() int {
 	// Slack paper is the area of the smallest side of the present
-	top := p.Length * p.Width
-	side := p.Length * p.Height
-	front := p.Width * p.Height
-
-	switch {
-	case top <= front && top <= side:
-		// Top is smallest area
-		return top
-	case front <= top && front <= side:
-		return front
-	default:
-		return side
-	}
+	return product(p.minSide())
 }
 
-func (p *Present) totalPaper() int {
+func (p *Present) ribbonLength() int {
+	// Ribbon required is the sum of the sides of the smallest face plus
+	// the volume of the present.
+	return (2 * sum(p.minSide())) + (p.Length * p.Width * p.Height)
+}
+
+func (p *Present) paperArea() int {
 	return p.surfaceArea() + p.slackPaper()
+}
+
+func sum(i []int) int {
+	var total int
+
+	for _, v := range i {
+		total += v
+	}
+	return total
+}
+
+func product(i []int) int {
+	var total int
+
+	for _, v := range i {
+		if total == 0 {
+			total = v
+		} else {
+			total *= v
+		}
+	}
+	return total
 }
 
 func parsePresents(path string) (*[]Present, error) {
 	var presents []Present
-	var present Present // Move this up here to prevent extra garbage collection
+	var present Present // Prevent unnecessary garbage collection
 
 	f, err := os.Open(path)
 	if err != nil {
@@ -97,6 +122,7 @@ func parsePresents(path string) (*[]Present, error) {
 
 func main() {
 	var totalArea int
+	var ribbonLength int
 
 	presents, err := parsePresents("day2.data")
 	if err != nil {
@@ -104,7 +130,8 @@ func main() {
 	}
 
 	for _, p := range *presents {
-		totalArea += p.totalPaper()
+		totalArea += p.paperArea()
+		ribbonLength += p.ribbonLength()
 	}
-	fmt.Printf("Total Area: %d sq. ft.\n", totalArea)
+	fmt.Printf("Total Area: %d sq. ft.\nRibbon Length: %d\n", totalArea, ribbonLength)
 }

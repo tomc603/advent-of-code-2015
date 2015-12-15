@@ -18,39 +18,56 @@ package main
 
 import "testing"
 
-func TestArea1(t *testing.T) {
+func TestPresent1(t *testing.T) {
 	p := Present{Length: 2, Height: 3, Width: 4}
-	area := p.area()
-	slack := p.slack()
-	total := p.area() + p.slack()
 
-	if area != 52 {
-		t.Fatalf("Area not calculated properly: %d", area)
+	if p.surfaceArea() != 52 {
+		t.Fatalf("Area not calculated properly: %d", p.surfaceArea())
+	} else {
+		t.Logf("Area: %d\n", p.surfaceArea())
 	}
-	if slack != 6 {
-		t.Fatalf("Slack not calculated properly: %d", slack)
+	if p.slackPaper() != 6 {
+		t.Fatalf("Slack not calculated properly: %d", p.slackPaper())
+	} else {
+		t.Logf("Slack: %d\n", p.slackPaper())
 	}
-	if total != 58 {
-		t.Fatalf("Total area not calculated properly: %d", total)
+	if p.paperArea() != 58 {
+		t.Fatalf("Total area not calculated properly: %d", p.paperArea())
+	} else {
+		t.Logf("Paper: %d\n", p.paperArea())
 	}
-	t.Logf("Success: %d, %d, %d", area, slack, total)
+	if p.ribbonLength() != 34 {
+		t.Fatalf("Ribbon length not calculated properly: %d", p.ribbonLength())
+	} else {
+		t.Logf("Ribbon: %d\n", p.ribbonLength())
+	}
 }
 
-func TestArea2(t *testing.T) {
+func TestPresent2(t *testing.T) {
 	p := Present{Length: 1, Height: 1, Width: 10}
-	area := p.area()
-	slack := p.slack()
-	total := p.area() + p.slack()
+	area := p.surfaceArea()
+	slack := p.slackPaper()
+	total := p.paperArea()
+	ribbon := p.ribbonLength()
 
-	if area != 42 {
-		t.Fatalf("Area not calculated properly: %d", area)
+	if p.surfaceArea() != 42 {
+		t.Fatalf("Area not calculated properly: %d", p.surfaceArea())
+	} else {
+		t.Logf("Area: %d\n", p.surfaceArea())
 	}
-	if slack != 1 {
-		t.Fatalf("Slack not calculated properly: %d", slack)
+	if p.slackPaper() != 1 {
+		t.Fatalf("Slack not calculated properly: %d", p.slackPaper())
+	} else {
+		t.Logf("Slack: %d\n", p.slackPaper())
 	}
-	if total != 43 {
-		t.Fatalf("Total area not calculated properly: %d", total)
+	if p.paperArea() != 43 {
+		t.Fatalf("Total area not calculated properly: %d", p.paperArea())
+	} else {
+		t.Logf("Paper: %d\n", p.paperArea())
 	}
-	t.Logf("Success: %d, %d, %d", area, slack, total)
-
+	if p.ribbonLength() != 14 {
+		t.Fatalf("Ribbon length not calculated properly: %d", p.ribbonLength())
+	} else {
+		t.Logf("Ribbon: %d\n", p.ribbonLength())
+	}
 }

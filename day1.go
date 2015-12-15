@@ -25,13 +25,18 @@ const input string = "()()(()()()(()()((()((()))((()((((()()((((()))()((((())(((
 
 func main() {
 	var floor int64 = 0
+	var basement bool
 
-	for _, c := range input {
+	for i, c := range input {
 		switch {
 		case strings.ContainsRune("(", c):
 			floor++
 		case strings.ContainsRune(")", c):
 			floor--
+		}
+		if floor == -1 && !basement {
+			fmt.Printf("Santa is in the basement at instruction %d\n", i+1)
+			basement = true
 		}
 	}
 	fmt.Printf("Santa is on floor %d\n", floor)

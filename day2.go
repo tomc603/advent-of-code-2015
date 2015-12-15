@@ -68,14 +68,10 @@ func sum(i []int) int {
 }
 
 func product(i []int) int {
-	var total int
+	var total int = 1
 
 	for _, v := range i {
-		if total == 0 {
-			total = v
-		} else {
-			total *= v
-		}
+		total *= v
 	}
 	return total
 }

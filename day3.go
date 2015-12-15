@@ -30,8 +30,9 @@ type House struct {
 
 func parseDirections(path string) (map[House]int, error) {
 	var (
-		house House // Prevent unnecessary garbage collection
-		x, y  int
+		house                        House // Prevent unnecessary garbage collection
+		santax, robox, santay, roboy int
+		santa                        bool
 	)
 	m := make(map[House]int)
 	m[house]++ // Initial delivery to origin point
@@ -54,17 +55,38 @@ func parseDirections(path string) (map[House]int, error) {
 		} else {
 			switch {
 			case strings.ContainsRune("^", c):
-				x++
+				if santa {
+					santax++
+				} else {
+					robox++
+				}
 			case strings.ContainsRune("v", c):
-				x--
+				if santa {
+					santax--
+				} else {
+					robox--
+				}
 			case strings.ContainsRune("<", c):
-				y--
+				if santa {
+					santay--
+				} else {
+					roboy--
+				}
 			case strings.ContainsRune(">", c):
-				y++
+				if santa {
+					santay++
+				} else {
+					roboy++
+				}
 			}
-			house.x, house.y = x, y
+			if santa {
+				house.x, house.y = santax, santay
+			} else {
+				house.x, house.y = robox, roboy
+			}
+			m[house]++
+			santa = !santa
 		}
-		m[house]++
 	}
 	return m, nil
 }

@@ -24,15 +24,26 @@ import (
 
 const key string = "iwrupvqb"
 
-// Generate md5 hashes of key+i until we find a hash whose hex value
-// begins with "00000"
+// Generate md5 hashes of key+i
 func main() {
+	var foundFive, foundSix bool
 	var i int
 
 	for {
+		// Calculate each MD5 SUM
 		h := fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s%d", key, i))))
-		if strings.HasPrefix(h, "00000") {
+
+		// Test if we have five or six zeros in our hash. Only print each result once
+		if strings.HasPrefix(h, "00000") && !foundFive {
 			fmt.Printf("Integer %d produces a coin!\n", i)
+			foundFive = true
+		} else if strings.HasPrefix(h, "000000") && !foundSix {
+			fmt.Printf("Integer %d produces six zero prefix!\n", i)
+			foundSix = true
+		}
+
+		// Both conditions are met, exit the program.
+		if foundFive && foundSix {
 			break
 		}
 		i++

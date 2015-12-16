@@ -17,29 +17,24 @@
 package main
 
 import (
-	"bufio"
+	"crypto/md5"
 	"fmt"
-	"os"
+	"strings"
 )
 
-func parseInput(path string) ([]string, error) {
-	var results []string
+const key string = "iwrupvqb"
 
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	r := bufio.NewReader(f)
+// Generate md5 hashes of key+i until we find a hash whose hex value
+// begins with "00000"
+func main() {
+	var i int
 
 	for {
-		break
-	}
-	return results, nil
-}
-
-func main() {
-	for i, c := range parseInput("dayX.data") {
-		fmt.Printf("%d: %s", i, c)
+		h := fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s%d", key, i))))
+		if strings.HasPrefix(h, "00000") {
+			fmt.Printf("Integer %d produces a coin!\n", i)
+			break
+		}
+		i++
 	}
 }

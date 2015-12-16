@@ -20,10 +20,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strings"
 )
-
-const vowels string = "aeiou"
 
 func readNames(path string) ([]string, error) {
 	var names []string
@@ -46,62 +43,73 @@ func readNames(path string) ([]string, error) {
 	return names, nil
 }
 
-func testName(n string) bool {
+func cheapRing(s []rune, r rune) []rune {
+	// Simulate a rune ring buffer so we always have current and two prior for comparison
+	if len(s) > 2 {
+		s = append(s[1:], r)
+	} else {
+		s = append(s, r)
+	}
+	return s
+}
+
+func checkName(n string) bool {
 	/*
 	* Check the string n against the following rules. If we meet the "nice" criteria
 	*  we return true. Otherwise we return false for "naughty".
 	*
 	*  Nice Names:
-	*  * Contains >=3 vowels (aeiou). ex: aei, xazegov, aeiouaeiouaeiou
-	*  * Contains immediately repeating letters. ex: xx, abcdde, aabbccdd
-	*  * NOT contains forbidden strings (ab, cd, pq, xy).
+	*  * Contains a pair of repeated runes that do not overlap. ex: xyxy, aabcdefgaa, not aaa
+	*  * Contains at least one letter that is repeated with one letter between them. ex: xyx, aaa
 	 */
 	var (
-		count    int
-		previous rune
-		repeats  bool
+		triplet bool
+		ring    []rune
 	)
 
+	// fmt.Printf("\nName: %s\n", n)
+	pairs := map[string]int{}
 	for _, r := range n {
-		// Confirm the name doesn't contain any of the forbidden combinations of letters
-		// This test is at the top to prevent paying the tax of the rest of the calculations
-		// for obviously naughty names.
-		if strings.Contains(string(previous)+string(r), "ab") ||
-			strings.Contains(string(previous)+string(r), "cd") ||
-			strings.Contains(string(previous)+string(r), "pq") ||
-			strings.Contains(string(previous)+string(r), "xy") {
-			return false
-		}
+		ring = cheapRing(ring, r)
 
-		// We found a repeated rune, so set the repeats flag
-		if previous == r {
-			repeats = true
-		}
+		// Minimum sensible ring size is 2 elements
+		if len(ring) == 2 {
+			pairs[string(ring[0])+string(ring[1])]++
+		} else if len(ring) > 2 {
+			if ring[0] == ring[2] {
+				// A nice triplet contains a repeated letter at the beginning and end
+				triplet = true
+				// fmt.Printf("Adding triplet: %s\n", string(ring))
+			}
 
-		// If we find a vowel, increment count
-		if strings.ContainsRune(vowels, r) {
-			count++
+			// The current and previous rune pair needs to be counted because it is not
+			// an overlapping pair]
+			if ring[1] != ring[2] {
+				// fmt.Printf("Adding pair: %s from %s\n", string(ring[1:]), string(ring))
+				pairs[string(ring[1:])]++
+			} else if ring[0] != ring[2] || ring[0] != ring[1] {
+				// fmt.Printf("Adding pair: %s from %s\n", string(ring[1:]), string(ring))
+				pairs[string(ring[1:])]++
+			}
 		}
-		previous = r
 	}
+	// fmt.Printf("Pairs: %v\n", pairs)
 
-	// If we've made it this far, there are no forbidden combinations. As long as
-	// we have found repeated runes and have 3 or more vowels, this name is nice!
-	if repeats && count > 2 {
-		return true
+	// fmt.Printf("Name: %s\nPairs: %v\n", n, pairs)
+	// If we have a repeated letter, and a pair repeated more than once the name is nice.
+	if triplet {
+		// No sense in iterating through pairs if we don't have a pepeated letter
+		for _, v := range pairs {
+			if v > 1 {
+				return true
+			}
+		}
 	}
 	return false
 }
 
 func main() {
-	/*
-		Process an input file of data, checking each name against the following criteria
-
-		Nice Names:
-		* Contains >=3 vowels (aeiou). ex: aei, xazegov, aeiouaeiouaeiou
-		* Contains immediately repeating letters. ex: xx, abcdde, aabbccdd
-		* NOT contains forbidden strings (ab, cd, pq, xy).
-	*/
+	// Process an input file of data, checking each name against the following criteria
 	var naughty, nice int
 
 	names, err := readNames("day5.data")
@@ -110,7 +118,7 @@ func main() {
 	}
 
 	for _, name := range names {
-		if testName(name) {
+		if checkName(name) {
 			nice++
 		} else {
 			naughty++

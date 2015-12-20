@@ -34,7 +34,7 @@ type rect struct {
 	x, y, xrange, yrange int
 }
 
-var lights [1000][1000]bool
+var lights [1000][1000]int
 
 func parseInput(path string) error {
 	f, err := os.Open(path)
@@ -131,30 +131,28 @@ func lightSet(r rect, v uint8) {
 		for y := r.y; y <= r.yrange; y++ {
 			switch v {
 			case on:
-				lights[x][y] = true
+				lights[x][y]++
 			case off:
-				lights[x][y] = false
+				if lights[x][y] > 0 {
+					lights[x][y]--
+				}
 			case toggle:
-				lights[x][y] = !lights[x][y]
+				lights[x][y] += 2
 			}
 		}
 	}
 }
 
 func main() {
-	var lightsOn, lightsOff int
+	var brightness int
 
 	if err := parseInput("day6.txt"); err != nil {
 		fmt.Printf("Error parsing input file. %s\n", err)
 	}
 	for x := range lights {
 		for y := range lights[x] {
-			if lights[x][y] == true {
-				lightsOn++
-			} else {
-				lightsOff++
-			}
+			brightness += lights[x][y]
 		}
 	}
-	fmt.Printf("Lights on: %d\nLights off: %d\n", lightsOn, lightsOff)
+	fmt.Printf("Total brightness: %d\n", brightness)
 }
